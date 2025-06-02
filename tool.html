@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tool Tracker</title>
+</head>
+<body>
+  <h1 id="tool">Loading...</h1>
+  <div id="data" style="display: none;">
+    <p><strong>Status:</strong> <span id="status"></span></p>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+
+    <form id="updateForm">
+      <input type="hidden" name="id" id="toolId">
+      <input type="text" name="location" placeholder="New Location" />
+      <button type="submit">Update</button>
+    </form>
+
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const id = new URLSearchParams(location.search).get("id");
+    document.getElementById("tool").textContent = `Tool ID: ${id}`;
+
+    fetch(`https://n8n.yourdomain.com/webhook/tool?id=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").textContent = data.Status;
+        document.getElementById("location").textContent = data.Location;
+        document.getElementById("toolId").value = id;
+        document.getElementById("data").style.display = "block";
+      });
+
+    document.getElementById("updateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const res = await fetch("https://n8n.yourdomain.com/webhook/tool-update", {
+        method: "POST",
+        body: new URLSearchParams(form)
+      });
+      document.getElementById("result").textContent = await res.text();
+    });
+  </script>
+</body>
+</html>
